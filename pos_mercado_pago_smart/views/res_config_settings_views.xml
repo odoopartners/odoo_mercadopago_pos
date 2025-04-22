@@ -1,0 +1,31 @@
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+
+<!--    <record id="res_config_settings_form_view_inherit_boost_multi_currency_pos" model="ir.ui.view">-->
+<!--        <field name="name">res.config.settings.form.view.inherit.boost_multi_currency_pos</field>-->
+<!--        <field name="model">res.config.settings</field>-->
+<!--        <field name="inherit_id" ref="point_of_sale.res_config_settings_view_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//setting[@id='iface_tipproduct']" position="after">-->
+<!--                <setting id="iface_multi_currency" string="Use To MultiCurrency For Payment">-->
+<!--                    <field name="pos_enable_multi_currency"/>-->
+<!--                    <div class="content-group mt16" invisible="not pos_enable_multi_currency">-->
+<!--                        <div class="row mt16">-->
+<!--                            <field name="pos_display_conversion" class="oe_inline"/>-->
+<!--                            <label string="Display Conversion of currencies" for="pos_display_conversion" class="oe_inline o_light_label"/>-->
+<!--                        </div>-->
+<!--                        <div class="row mt16">-->
+<!--                            <field name="pos_fetch_master" class="oe_inline"/>-->
+<!--                            <label string="Fetch All The Active Currencies" for="pos_fetch_master" class="oe_inline o_light_label"/>-->
+<!--                        </div>-->
+<!--                        <div class="row mt16" invisible="pos_fetch_master">-->
+<!--                            <label string="Select currencies" for="pos_currencies_ids" class="col-lg-3 o_light_label"/>-->
+<!--                            <field name="pos_currencies_ids" widget="many2many_tags"/>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </setting>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--</odoo>-->
