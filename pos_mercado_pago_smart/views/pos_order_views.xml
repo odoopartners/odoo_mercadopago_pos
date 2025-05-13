@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="pos_payment_method_view_form_inherit_pos_mercado_pago_form_inherit_pos_mercado_pago_smart" model="ir.ui.view">
+        <field name="name">pos_payment_method_view_form_inherit_pos_mercado_pago.form.inherit.pos_mercado_pago_smart</field>
+        <field name="model">pos.payment.method</field>
+        <field name="inherit_id" ref="pos_mercado_pago.pos_payment_method_view_form_inherit_pos_mercado_pago"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='mp_bearer_token']" position="before">
+                <field name="mp_smart_payment" invisible="use_payment_terminal != 'mercado_pago'" required="use_payment_terminal == 'mercado_pago'"/>
+                <field name="mp_refresh_token" invisible="1" readonly="1"/>
+                <field name="mp_client_id" invisible="use_payment_terminal != 'mercado_pago' or not mp_smart_payment"
+                       required="use_payment_terminal == 'mercado_pago' and mp_smart_payment"/>
+                <field name="mp_client_secret" invisible="use_payment_terminal != 'mercado_pago' or not mp_smart_payment"
+                       required="use_payment_terminal == 'mercado_pago' and mp_smart_payment"/>
+                <button name="%(mp_access_token_action_view)d" string="Validate token" type="action" class="oe_highlight"
+                        invisible="not mp_smart_payment or mp_bearer_token" groups="point_of_sale.group_pos_manager"
+                />
+                <button string="Refresh token" type="object" name="mp_refresh_bearer_token" class="oe_highlight"
+                        invisible="not mp_smart_payment or not mp_refresh_token" groups="point_of_sale.group_pos_manager"
+                />
+            </xpath>
+            <xpath expr="//field[@name='mp_bearer_token']" position="attributes">
+                <attribute name="required">use_payment_terminal == 'mercado_pago' and not mp_smart_payment</attribute>
+                <attribute name="readonly">mp_smart_payment</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
