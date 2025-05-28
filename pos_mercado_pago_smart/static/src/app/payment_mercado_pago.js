@@ -48,4 +48,32 @@ patch(PaymentMercadoPago.prototype, {
             [[line.payment_method_id.id], additional_info]
         );
     },
+    async handleMercadoPagoWebhook() {
+
+        const line = this.pos.get_order().get_selected_paymentline();
+        const showMessageAndManualButtonActive = (messageKey, status, resolverValue) => {
+            if (!resolverValue) {
+                this._showMsg(messageKey, status);
+            }
+            line.set_payment_status();
+            this.webhook_resolver?.(resolverValue);
+            return resolverValue;
+        };
+
+        const handleManualPayment = async (paymentIntent) => {
+            if (paymentIntent.state === "ACTION_REQUIRED") {
+                return showMessageAndManualButtonActive(_t("There was a problem with the payment, please validate manually if it was processed"), "info", true);
+            }
+        };
+
+        if ("id" in this.payment_intent) {
+            let last_status_payment_intent = await this.get_last_status_payment_intent();
+            if (this.payment_intent.id == last_status_payment_intent.id) {
+                if (["ACTION_REQUIRED"].includes(last_status_payment_intent.state)) {
+                    return await handleManualPayment(last_status_payment_intent);
+                }
+            }
+        }
+        await super.handleMercadoPagoWebhook(...arguments);
+    }
 });

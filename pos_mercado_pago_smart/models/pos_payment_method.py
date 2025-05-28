@@ -162,7 +162,7 @@ class PosPaymentMethod(models.Model):
         if resp.get('status', False):
             resp['state'] = resp['status'].upper()
         if resp.get('transactions', False).get('payments', False):
-            resp['payment'] = { 'id': resp['transactions']['payments'][0]['id']}
+            resp['payment'] = {'id': resp['transactions']['payments'][0]['id']}
         _logger.info("mp_payment_intent_get(), Order response from Mercado Pago: %s", resp)
         return resp
 
@@ -186,6 +186,8 @@ class PosPaymentMethod(models.Model):
         if not self.mp_smart_payment:
             return super(PosPaymentMethod, self)._find_terminal(token, point_smart)
 
+        if not token:
+            return point_smart
         mercado_pago = MercadoPagoPosRequest(token)
         data = mercado_pago.call_mercado_pago("get", "/terminals/v1/list", {})
         if data.get('data') and data['data'].get('terminals'):
