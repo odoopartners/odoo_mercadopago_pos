@@ -52,11 +52,9 @@ patch(PaymentMercadoPago.prototype, {
         // Extend the original method to handle manual payment status - action_required
         const line = this.pos.get_order().get_selected_paymentline();
         const showMessageAndManualButtonActive = (messageKey, status, resolverValue) => {
-            if (!resolverValue) {
-                this._showMsg(messageKey, status);
-            }
+            this._showMsg(messageKey, status);
             line.set_payment_status();
-            this.webhook_resolver?.(resolverValue);
+            this.pos.paymentTerminalInProgress = false;
             return resolverValue;
         };
 
