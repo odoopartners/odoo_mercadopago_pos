@@ -162,6 +162,8 @@ class PosPaymentMethod(models.Model):
         _logger.info("mp_payment_intent_get(), Order response from Mercado Pago: %s", resp)
         if resp.get('status', False):
             resp['state'] = resp['status'].upper()
+            if resp['state'] in ['CREATED', 'AT_TERMINAL']:
+                resp['state'] = 'OPEN'
         if resp.get('transactions', False) and resp['transactions'].get('payments', False):
             resp['payment'] = {'id': resp['transactions']['payments'][0]['id']}
         _logger.info("mp_payment_intent_get(), Update Order response from Mercado Pago: %s", resp)
@@ -181,6 +183,11 @@ class PosPaymentMethod(models.Model):
         resp = mercado_pago.call_mercado_pago("post", f"/v1/orders/{infos['payment_intent_id']}/cancel", {})
         _logger.info("mp_payment_intent_cancel(), Order cancel: %s", infos['payment_intent_id'])
         _logger.info("mp_payment_intent_cancel(), Order response from Mercado Pago: %s", resp)
+        if resp.get('errors'):
+            resp.update({
+                'error': resp['errors'],
+                'status': 409
+            })
         return resp
 
     def _find_terminal(self, token, point_smart):
