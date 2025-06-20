@@ -50,7 +50,7 @@ class PosPaymentMethod(models.Model):
 
     @staticmethod
     def mp_get_token_lifetime():
-        return (datetime.now() + timedelta(days=180)).strftime('%Y-%m-%d')
+        return (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d')
 
     def mp_create_bearer_token(self, mp_pkce, mp_pkce_code_verifier):
         self._check_special_access()
@@ -159,11 +159,12 @@ class PosPaymentMethod(models.Model):
         # Call Mercado Pago for order status
         _logger.info("mp_payment_intent_get(), Order data: %s", payment_intent_id)
         resp = mercado_pago.call_mercado_pago("get", f"/v1/orders/{payment_intent_id}", {})
+        _logger.info("mp_payment_intent_get(), Order response from Mercado Pago: %s", resp)
         if resp.get('status', False):
             resp['state'] = resp['status'].upper()
-        if resp.get('transactions', False).get('payments', False):
+        if resp.get('transactions', False) and resp['transactions'].get('payments', False):
             resp['payment'] = {'id': resp['transactions']['payments'][0]['id']}
-        _logger.info("mp_payment_intent_get(), Order response from Mercado Pago: %s", resp)
+        _logger.info("mp_payment_intent_get(), Update Order response from Mercado Pago: %s", resp)
         return resp
 
     def mp_payment_intent_cancel(self, infos):
@@ -178,7 +179,7 @@ class PosPaymentMethod(models.Model):
         mercado_pago = MercadoPagoPosRequest(self.sudo().mp_bearer_token, infos['idempotency_key'])
         # Call Mercado Pago for order cancellation
         resp = mercado_pago.call_mercado_pago("post", f"/v1/orders/{infos['payment_intent_id']}/cancel", {})
-        _logger.info("mp_payment_intent_cancel(), Order cancel: %s", infos)
+        _logger.info("mp_payment_intent_cancel(), Order cancel: %s", infos['payment_intent_id'])
         _logger.info("mp_payment_intent_cancel(), Order response from Mercado Pago: %s", resp)
         return resp
 
@@ -187,7 +188,7 @@ class PosPaymentMethod(models.Model):
             return super(PosPaymentMethod, self)._find_terminal(token, point_smart)
 
         if not token:
-            return point_smart
+            return self.mp_id_point_smart
         mercado_pago = MercadoPagoPosRequest(token)
         data = mercado_pago.call_mercado_pago("get", "/terminals/v1/list", {})
         if data.get('data') and data['data'].get('terminals'):

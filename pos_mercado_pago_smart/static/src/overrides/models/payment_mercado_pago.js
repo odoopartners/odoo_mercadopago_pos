@@ -14,7 +14,7 @@ patch(PaymentMercadoPago.prototype, {
 
         // Build information for creating a payment intend on Mercado Pago.
         // Data in "external_reference" are send back with the webhook notification
-        this.mp_identity_key = `${this.pos.config.current_session_id.id}_${line.payment_method_id.id}_${order.uuid}_${Date.now()}`
+        this.set_mp_identity_key(line, order)
         const infos = {
             amount: parseInt(line.amount * 100, 10),
             additional_info: {
@@ -35,7 +35,7 @@ patch(PaymentMercadoPago.prototype, {
         // Override to add new parameters
         const line = this.pos.get_order().get_selected_paymentline();
         const order = this.pos.get_order();
-
+        this.set_mp_identity_key(line, order)
         const additional_info = {
             idempotency_key: this.mp_identity_key,
             payment_intent_id: this.payment_intent.id
@@ -47,6 +47,9 @@ patch(PaymentMercadoPago.prototype, {
             "mp_payment_intent_cancel",
             [[line.payment_method_id.id], additional_info]
         );
+    },
+    set_mp_identity_key(line, order) {
+        this.mp_identity_key = `${this.pos.config.current_session_id.id}_${line.payment_method_id.id}_${order.uuid}_${Date.now()}`
     },
     async handleMercadoPagoWebhook() {
         // Extend the original method to handle manual payment status - action_required
