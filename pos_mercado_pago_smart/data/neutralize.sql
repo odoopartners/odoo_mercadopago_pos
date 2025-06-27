@@ -5,4 +5,3 @@ UPDATE pos_payment_method
        mp_pkce = '-',
        mp_pkce_code_verifier = '-',
        mp_token_lifetime = null;
-   WHERE mp_bearer_token IS NOT NULL;
