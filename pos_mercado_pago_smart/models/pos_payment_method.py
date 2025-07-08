@@ -234,3 +234,16 @@ class PosPaymentMethod(models.Model):
         }
         _logger.info("mp_get_payment_status(), response from Mercado Pago: %s", resp)
         return resp
+
+    def write(self, vals):
+        records = super().write(vals)
+        if self.mp_id_point_smart and self.mp_smart_payment:
+            self.mp_id_point_smart_complet = self.mp_id_point_smart
+        return records
+
+    def create(self, vals):
+        records = super().create(vals)
+        for record in records:
+            if record.mp_id_point_smart and record.mp_smart_payment:
+                record.mp_id_point_smart_complet = record.mp_id_point_smart
+        return records
