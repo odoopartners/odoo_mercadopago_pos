@@ -56,7 +56,6 @@ patch(PaymentMercadoPago.prototype, {
         );
     },
     async reversal_payment_intent() {
-        // refunded_orderline_id
         const order = this.pos.get_order();
         const line = order.get_selected_paymentline();
 
