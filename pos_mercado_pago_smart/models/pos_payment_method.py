@@ -5,7 +5,7 @@ from odoo import fields, models, _
 from odoo.exceptions import AccessError, UserError
 
 from .mercado_pago_pos_request import MercadoPagoPosRequestExtended as MercadoPagoPosRequest
-
+from .test_data import create_order_data_resp, get_order_data_resp, refund_data_resp
 _logger = logging.getLogger(__name__)
 
 
@@ -138,7 +138,8 @@ class PosPaymentMethod(models.Model):
             "integration_data": {"platform_id": "dev_cdf1cfac242111ef9fdebe8d845d0987"},
         }
         _logger.info("mp_payment_intent_create(), Order response from data: %s", info_pos_order)
-        resp = mercado_pago.call_mercado_pago("post", f"/v1/orders", info_pos_order)
+        # resp = mercado_pago.call_mercado_pago("post", f"/v1/orders", info_pos_order)
+        resp = create_order_data_resp
         _logger.info("mp_payment_intent_create(), Order response from Mercado Pago: %s", resp)
 
         if resp.get('errors'):
@@ -158,7 +159,8 @@ class PosPaymentMethod(models.Model):
         mercado_pago = MercadoPagoPosRequest(self.sudo().mp_bearer_token)
         # Call Mercado Pago for order status
         _logger.info("mp_payment_intent_get(), Order data: %s", payment_intent_id)
-        resp = mercado_pago.call_mercado_pago("get", f"/v1/orders/{payment_intent_id}", {})
+        # resp = mercado_pago.call_mercado_pago("get", f"/v1/orders/{payment_intent_id}", {})
+        resp = get_order_data_resp
         _logger.info("mp_payment_intent_get(), Order response from Mercado Pago: %s", resp)
         if resp.get('status', False):
             resp['state'] = resp['status'].upper()
@@ -188,6 +190,23 @@ class PosPaymentMethod(models.Model):
                 'error': resp['errors'],
                 'status': 409
             })
+        return resp
+
+    def mp_payment_intent_reversal(self, infos):
+        """
+        Called from frontend to reversal an Order in Mercado Pago
+        """
+        if not self.mp_smart_payment:
+            return False
+
+        self._check_special_access()
+
+        mercado_pago = MercadoPagoPosRequest(self.sudo().mp_bearer_token, infos['idempotency_key'])
+        # Call Mercado Pago for order cancellation
+        # resp = mercado_pago.call_mercado_pago("post", f"/v1/orders/{infos['payment_intent_id']}/refund", {})
+        resp = refund_data_resp
+        _logger.info("mp_payment_intent_reversal(), Order refund: %s", infos['payment_intent_id'])
+        _logger.info("mp_payment_intent_reversal(), Order response from Mercado Pago: %s", resp)
         return resp
 
     def _find_terminal(self, token, point_smart):
