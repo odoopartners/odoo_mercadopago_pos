@@ -1,11 +1,8 @@
 import logging
 from datetime import datetime, timedelta
-
 from odoo import fields, models, _
 from odoo.exceptions import AccessError, UserError
-
 from .mercado_pago_pos_request import MercadoPagoPosRequestExtended as MercadoPagoPosRequest
-
 _logger = logging.getLogger(__name__)
 
 
@@ -188,6 +185,22 @@ class PosPaymentMethod(models.Model):
                 'error': resp['errors'],
                 'status': 409
             })
+        return resp
+
+    def mp_payment_intent_reversal(self, infos):
+        """
+        Called from frontend to reversal an Order in Mercado Pago
+        """
+        if not self.mp_smart_payment:
+            return False
+
+        self._check_special_access()
+
+        mercado_pago = MercadoPagoPosRequest(self.sudo().mp_bearer_token, infos['idempotency_key'])
+        # Call Mercado Pago for order cancellation
+        resp = mercado_pago.call_mercado_pago("post", f"/v1/orders/{infos['payment_intent_id']}/refund", {})
+        _logger.info("mp_payment_intent_reversal(), Order refund: %s", infos['payment_intent_id'])
+        _logger.info("mp_payment_intent_reversal(), Order response from Mercado Pago: %s", resp)
         return resp
 
     def _find_terminal(self, token, point_smart):
