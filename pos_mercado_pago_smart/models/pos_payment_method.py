@@ -250,13 +250,13 @@ class PosPaymentMethod(models.Model):
 
     def write(self, vals):
         records = super().write(vals)
-        if self.mp_id_point_smart and self.mp_smart_payment:
+        if vals.get('mp_id_point_smart') and self.mp_smart_payment and not self.mp_id_point_smart_complet:
             self.mp_id_point_smart_complet = self.mp_id_point_smart
         return records
 
     def create(self, vals):
         records = super().create(vals)
         for record in records:
-            if record.mp_id_point_smart and record.mp_smart_payment:
+            if record.mp_id_point_smart and record.mp_smart_payment and not record.mp_id_point_smart_complet:
                 record.mp_id_point_smart_complet = record.mp_id_point_smart
         return records
