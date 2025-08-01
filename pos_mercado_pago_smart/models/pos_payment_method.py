@@ -9,9 +9,9 @@ _logger = logging.getLogger(__name__)
 class PosPaymentMethod(models.Model):
     _inherit = 'pos.payment.method'
 
-    mp_smart_payment = fields.Boolean(string='Mercado Pago Smart payment', groups="point_of_sale.group_pos_manager")
-    mp_client_id = fields.Char(string='Mercado Pago Client ID', groups="point_of_sale.group_pos_manager")
-    mp_client_secret = fields.Char(string='Mercado Pago Client Secret', groups="point_of_sale.group_pos_manager")
+    mp_smart_payment = fields.Boolean(string='Mercado Pago Smart payment')
+    mp_client_id = fields.Char(string='Mercado Pago Client ID')
+    mp_client_secret = fields.Char(string='Mercado Pago Client Secret')
     mp_refresh_token = fields.Char(string='Mercado Pago refresh token')
     mp_pkce = fields.Char(string='Mercado Pago PKCE')
     mp_pkce_code_verifier = fields.Char(string='Mercado Pago PKCE code verifier')
