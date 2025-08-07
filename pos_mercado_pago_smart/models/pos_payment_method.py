@@ -36,7 +36,7 @@ class PosPaymentMethod(models.Model):
         resp = mercado_pago.call_mercado_pago("patch", "/terminals/v1/setup", mode)
         if resp['terminals'][0].get("operating_mode") != "PDV":
             raise UserError(_("Unexpected Mercado Pago response: %s", resp))
-        _logger.debug("Successfully set the terminal mode to 'PDV'.")
+        _logger.info("Successfully set the terminal mode to 'PDV': %s", resp)
         return None
 
     def mp_get_url_redirect_uri(self):
