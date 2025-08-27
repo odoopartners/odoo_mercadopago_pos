@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="pos_payment_method_form_view_inherit_pos_mercado_pago_smart" model="ir.ui.view">
-        <field name="name">pos.payment.method.form.view.inherit.pos_mercado_pago_smart</field>
+    <record id="pos_payment_method_view_form_inherit_pos_mercado_pago_form_inherit_pos_mercado_pago_smart" model="ir.ui.view">
+        <field name="name">pos_payment_method_view_form_inherit_pos_mercado_pago.form.inherit.pos_mercado_pago_smart</field>
         <field name="model">pos.payment.method</field>
         <field name="inherit_id" ref="pos_mercado_pago.pos_payment_method_view_form_inherit_pos_mercado_pago"/>
         <field name="arch" type="xml">
@@ -27,19 +27,4 @@
         </field>
     </record>
 
-    <record id="pos_order_form_view_inherit_pos_mercado_pago_smart" model="ir.ui.view">
-        <field name="name">pos.order.form.view.inherit.pos_mercado_pago_smart</field>
-        <field name="model">pos.order</field>
-        <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='pricelist_id']" position="after">
-                <field name="mp_order_id" invisible="1"/>
-                <field name="mp_transaction_id" invisible="1"/>
-                <field name="mp_order_amount_total" invisible="1"/>
-                <field name="refund_mp_order_id" invisible="1"/>
-                <field name="refund_mp_transaction_id" invisible="1"/>
-                <field name="refund_mp_order_amount_total" invisible="1"/>
-            </xpath>
-        </field>
-    </record>
 </odoo>
