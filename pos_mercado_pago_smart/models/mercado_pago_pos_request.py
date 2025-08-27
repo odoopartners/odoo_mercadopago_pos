@@ -31,7 +31,11 @@ class MercadoPagoPosRequestExtended(MercadoPagoPosRequest):
             header['X-platform-id'] = "dev_cdf1cfac242111ef9fdebe8d845d0987"
 
         try:
-            response = requests.request(method, endpoint, headers=header, json=payload, timeout=REQUEST_TIMEOUT)
+            _logger.debug("Enviando petición a Mercado Pago: método=%s, endpoint=%s, headers=%s, payload=%s", method, endpoint, header, payload)
+            if not payload:
+                response = requests.request(method, endpoint, headers=header, timeout=REQUEST_TIMEOUT)
+            else:
+                response = requests.request(method, endpoint, headers=header, json=payload, timeout=REQUEST_TIMEOUT)
             json_response = response.json()
             return json_response
         except requests.exceptions.RequestException as error:

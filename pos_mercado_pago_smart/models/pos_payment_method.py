@@ -198,8 +198,7 @@ class PosPaymentMethod(models.Model):
 
         mercado_pago = MercadoPagoPosRequest(self.sudo().mp_bearer_token, infos['idempotency_key'])
         # Call Mercado Pago for order cancellation
-        refund_data = {'transactions': [{"amount": str(infos['refund_amount']), "id": infos['payment_id']}]}
-        resp = mercado_pago.call_mercado_pago("post", f"/v1/orders/{infos['payment_intent_id']}/refund", refund_data)
+        resp = mercado_pago.call_mercado_pago("post", f"/v1/orders/{infos['payment_intent_id']}/refund", {})
         _logger.info("mp_payment_intent_reversal(), Order refund: %s", infos['payment_intent_id'])
         _logger.info("mp_payment_intent_reversal(), Order response from Mercado Pago: %s", resp)
         if resp.get('errors'):
