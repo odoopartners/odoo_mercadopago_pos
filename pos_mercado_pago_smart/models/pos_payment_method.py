@@ -201,6 +201,9 @@ class PosPaymentMethod(models.Model):
         resp = mercado_pago.call_mercado_pago("post", f"/v1/orders/{infos['payment_intent_id']}/refund", {})
         _logger.info("mp_payment_intent_reversal(), Order refund: %s", infos['payment_intent_id'])
         _logger.info("mp_payment_intent_reversal(), Order response from Mercado Pago: %s", resp)
+        if resp.get('errors'):
+            error_resp = {'error': True, 'message': self.mp_catch_smart_pago_errors(resp)}
+            return error_resp
         return resp
 
     def _find_terminal(self, token, point_smart):
