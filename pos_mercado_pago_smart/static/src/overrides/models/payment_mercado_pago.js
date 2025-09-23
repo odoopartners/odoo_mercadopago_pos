@@ -63,6 +63,15 @@ patch(PaymentMercadoPago.prototype, {
             this._showMsg(_t("This order wasn't paid with MercadoPago (OrderId not found), try to validate again"), 'info');
             return false;
         }
+        if (!order.refund_mp_transaction_id) {
+            this._showMsg(_t("This order had problems with the paid with MercadoPago (TransactionId not found), try to validate again"), 'info');
+            return false;
+        }
+        if (order.refund_mp_order_amount_total === 0.0) {
+            this._showMsg(_t("This order does not had amount to return to MercadoPago (returnAmount not found), try to validate again"), 'info');
+            return false;
+        }
+
         order.recomputeOrderData()
         if (order.refund_mp_order_amount_total * -1 !== order.amount_total) {
             this._showMsg(_t("Total amount expected to refund is “%(refund_mp)s” but was modified to “%(amount_total)s”", {
@@ -76,13 +85,33 @@ patch(PaymentMercadoPago.prototype, {
         this.set_mp_identity_key(line, order)
         const additional_info = {
             idempotency_key: this.mp_identity_key,
-            payment_intent_id: order.refund_mp_order_id
+            payment_intent_id: order.refund_mp_order_id,
+            transaction_id: order.refund_mp_transaction_id,
+            refund_amount: order.refund_mp_order_amount_total
         }
-        return await this.env.services.orm.silent.call(
+        const reversal_response = await this.env.services.orm.silent.call(
             "pos.payment.method",
             "mp_payment_intent_reversal",
             [[line.payment_method_id.id], additional_info]
         );
+        if (!("id" in reversal_response)) {
+            this._showMsg(reversal_response.message, "error");
+            return false;
+        }
+        return reversal_response
+    },
+    async get_last_status_payment_intent() {
+        // Extend to store mercado pago transaction id
+        const mp_last_status_response = await super.get_last_status_payment_intent(...arguments);
+        let order = this.pos.get_order();
+        const payment = mp_last_status_response?.transactions?.payments?.[0];
+        if (payment?.id) {
+            order.mp_transaction_id = payment.id;
+        }
+        if (payment?.paid_amount) {
+            order.mp_order_amount_total = payment.paid_amount;
+        }
+        return mp_last_status_response
     },
     async send_payment_request(cid) {
         // Extend the original method to handle reversal integration
