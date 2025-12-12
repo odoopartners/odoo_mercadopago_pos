@@ -3,9 +3,10 @@ import { PaymentScreen } from "@point_of_sale/app/screens/payment_screen/payment
 
 patch(PaymentScreen.prototype, {
     async validateOrder(isForceValidate) {
+        const order = this.pos.get_order();
         // Extended to avoid manually ask for chilean invoice number - bypass l10n_cl_edi_pos -> validateOrder
         let isChilean = false;
-        if (this.pos.isChileanCompany()){
+        if (this.pos.isChileanCompany() && order.voucher_number) {
             this.pos.company.country_id.code = "CL-2"
             isChilean = true
         }
