@@ -34,7 +34,7 @@ class PosPaymentMethod(models.Model):
             "operating_mode": "PDV"
         }]}
         resp = mercado_pago.call_mercado_pago("patch", "/terminals/v1/setup", mode)
-        if resp['terminals'][0].get("operating_mode") != "PDV":
+        if 'errors' in resp or resp['terminals'][0].get("operating_mode") != "PDV":
             raise UserError(_("Unexpected Mercado Pago response: %s", resp))
         _logger.info("Successfully set the terminal mode to 'PDV': %s", resp)
         return None
