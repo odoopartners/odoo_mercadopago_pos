@@ -5,14 +5,17 @@ patch(PaymentScreen.prototype, {
     async validateOrder(isForceValidate) {
         const order = this.pos.get_order();
         // Extended to avoid manually ask for chilean invoice number - bypass l10n_cl_edi_pos -> validateOrder
-        let isChilean = false;
-        if (this.pos.isChileanCompany() && order.voucher_number) {
-            this.pos.company.country_id.code = "CL-2"
-            isChilean = true
-        }
-        await super.validateOrder(...arguments);
-        if (isChilean){
-            this.pos.company.country_id.code = "CL"
+        const originalCode = this.pos.company.country_id?.code;
+        const isChilean = this.pos.isChileanCompany() && order.voucher_number;
+        try {
+            if (isChilean) {
+                this.pos.company.country_id.code = "CL-2"
+            }
+            return await super.validateOrder(...arguments);
+        } finally {
+            if (isChilean) {
+                this.pos.company.country_id.code = originalCode;
+            }
         }
     },
 });
